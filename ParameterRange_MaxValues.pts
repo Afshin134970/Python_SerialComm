@@ -1,0 +1,240 @@
+DL_SCRIPTVERSION
+1
+28614
+
+Option Explicit
+
+' *************
+' * Variables *
+' *************
+Dim ScriptExecutedBy
+   
+DL.OpenProject "ParameterRange_MaxValues"
+DL.ClearCommWindows
+
+   ' **********
+   ' * Header *
+   ' **********
+   DL.AddComment "**********************************************************************************"
+   DL.AddComment "*                             Script Information                                 *"
+   DL.AddComment "**********************************************************************************"
+   DL.AddComment "         Setting C5 Instrument/Engineering Setting Params to MaxValues            "
+   DL.AddComment "**********************************************************************************"
+   ' ********
+   ' * Date *
+   ' ********
+   DL.AddComment "                           Executed On: " & gMyNow(0)
+   ' *************
+   ' * User Name *
+   ' *************
+   ScriptExecutedBy = gGetUserName()
+   If (ScriptExecutedBy = "Not Set") Then
+      ScriptExecutedBy = InputBox("Enter your first and last name.", "Enter your Name", ScriptExecutedBy)
+   End If
+   DL.AddComment "                           Executed By: " & ScriptExecutedBy
+   DL.AddComment "**********************************************************************************"
+
+   
+
+   Rem bFunctions {
+   ' ********************************************************************
+   ' *  FFFFF  U   U  N    N   CCCC  TTTTT  IIIII   OOO   N   N   SSSS  *
+   ' *  F      U   U  NN   N  C        T      I    O   O  NN  N  S      *
+   ' *  FFF    U   U  N N  N  C        T      I    O   O  N N N   SSS   *
+   ' *  F      U   U  N  N N  C        T      I    O   O  N  NN      S  *
+   ' *  F       UUU   N   NN   CCCC    T    IIIII   OOO   N   N  SSSS   *
+   ' ********************************************************************
+   Rem bgDisplayHeading {
+   Function gDisplayHeading(pHeading)
+      Dim lLength
+      Dim lAdjust
+      Dim lTopBorder
+      Dim lMidBorder
+      Dim lBotBorder
+
+      lLength = 0
+      lTopBorder = ""
+      lMidBorder = ""
+      lBotBorder = ""
+
+      lLength = Len(pHeading) + 4 ' Plus 4 for the space & * at each end for middle border
+      lTopBorder = String(lLength, "*")
+      lMidBorder = "*"
+      lBotBorder = String(lLength, "*")
+
+      DL.AddComment vbNewLine
+      DL.AddComment lTopBorder, False, True
+      DL.AddComment lMidBorder & " " & pHeading & " " & lMidBorder, False, True
+      DL.AddComment " " & lBotBorder, False, False
+
+      gDisplayHeading = True
+   End Function
+   Rem egDisplayHeading }
+   Rem bgCenterText {
+   ' *********************************************************************
+   ' * Name: gCenterText                                                  *
+   ' * Description: This function takes text and the length of a string, *
+   ' *    and creates a string of that length with the texted centered.  *
+   ' * Input(s):                                                         *
+   ' *    pText (String)                                                 *
+   ' *       This is text to be centered                                 *
+   ' *    pLineLength (Integer)                                          *
+   ' *       This is the overall length of the final string              *
+   ' * Output(s): String - length of value passed with text centered     *                                                   *
+   ' * Note(s): This function is only called by gDisplayHeader function   *
+   ' *********************************************************************
+   Function gCenterText(pText, pLineLength)
+      Dim lSpaces
+      Dim lCenteredText
+
+      ' Initialize Variables
+      lSpaces = 0
+      lCenteredText = ""
+
+      ' Number of spaces is length of line - length of text to center divided by 2
+      lSpaces = (pLineLength - Len(pText)) / 2
+      lCenteredText = String(lSpaces, " ")
+
+      ' Return text centered on line of LineLength
+      gCenterText = lCenteredText & pText
+   End Function
+   Rem egCenterText }
+   Rem bgGetUserName {
+   ' ********************************************************************
+   ' * Name: gGetUserName                                               *
+   ' * Description: This function gets the name of the person executing *
+   ' *    the script from the user name of the PC.                      *
+   ' * Input(s): None                                                   *
+   ' * Output(s): String - name of the user based on the PC name        *
+   ' ********************************************************************
+    Function gGetUserName()
+      Dim objNet
+      Dim lScriptExecutedBy
+
+      ' Create object with network information
+      Set objNet = CreateObject("WScript.NetWork")
+
+      ' Check network user name and set script executed by variable
+      If (objNet.UserName = "320027279") Then
+          lScriptExecutedBy = "Afshin Ashrafy"
+      'ElseIf (objNet.UserName = "hpittman") Then
+       '   lScriptExecutedBy = "Herb Pittman"
+       'ElseIf (objNet.UserName = "pgunneson") Then
+       '   lScriptExecutedBy = "Paul Gunneson"
+       'ElseIf (objNet.UserName = "russ") Then
+       '   lScriptExecutedBy = "Bob Uss"
+       'ElseIf (objNet.UserName = "spacker") Then
+       '   lScriptExecutedBy = "Scott Packer"
+       'ElseIf (objNet.UserName = "ewigforss") Then
+       '   lScriptExecutedBy = "Eric Wigforss"
+       'ElseIf (objNet.UserName = "mernandez") Then
+       '   lScriptExecutedBy = "Mike Ernandez"
+       Else
+          lScriptExecutedBy = objNet.UserName
+       End If
+
+      ' Destroy object to free memory
+       Set objNet = Nothing
+
+       gGetUserName = lScriptExecutedBy
+   End Function
+   Rem egGetUserName }
+   Rem bgMyNow {
+   ' **********************************************************************
+   ' * Name: gMyNow                                                       *
+   ' * Description: This function formats the current date to dd-MMM-YYYY *
+   ' * Input(s):                                                          *
+   ' *   pFormat (Integer)                                                *
+   ' *      Sets output will include time or not                          *
+   ' *         0 = Date Only (DATE_ONLY)                                  *
+   ' *         1 = Date & Time (DATE_TIME)                                *
+   ' * Output(s): String - current date formatted as dd-MMM-YYYY          *                                                        *
+   ' * Note(s): This function is only called by gDisplayHeader function   *
+   ' **********************************************************************
+   Function gMyNow(pFormat)
+      Dim lMyDay
+      Dim lMyMonth
+
+      ' Format current day to 2 digits (DD) for constant spacing
+      lMyDay = Day(Now)
+      If (lMyDay < 10) Then
+         lMyDay = "0" & lMyDay
+      End If
+
+      ' Get current month number
+      lMyMonth = Month(Now)
+      ' Convert month number to 3 letter abbreviation (i.e. Jan, Feb, ...)
+      lMyMonth = MonthName(lMyMonth, True)
+
+      ' Format current date to DD-MMM-YYYY
+      If (pFormat = 0) Then
+         gMyNow = lMyDay & "-" & lMyMonth & "-" & Year(Now)
+      Else
+         gMyNow = lMyDay & "-" & lMyMonth & "-" & Year(Now) & " at " & Time
+      End If
+   End Function
+   Rem egMyNow }
+   Rem bgGetScriptEngineInformation {
+   ' ********************************************************************
+   ' * Name: gGetScriptEngineInfo                                        *
+   ' * Description: This function returns the current script engine     *
+   ' *    version information.                                          *
+   ' * Input(s): None                                                   *
+   ' * Output(s): String - script engine version information            *
+   ' ********************************************************************
+   Function gGetScriptEngineInfo()
+      Dim lsScriptInfo
+
+      ' Build string with necessary info.
+      lsScriptInfo = ""
+      lsScriptInfo = ScriptEngine & " Version: "
+      lsScriptInfo = lsScriptInfo & ScriptEngineMajorVersion & "."
+      lsScriptInfo = lsScriptInfo & ScriptEngineMinorVersion & "."
+      lsScriptInfo = lsScriptInfo & ScriptEngineBuildVersion
+
+      ' Return script engine information
+      gGetScriptEngineInfo = lsScriptInfo
+   End Function
+   Rem egGetScriptEngineInformation }
+
+DL.SendSequence "Set Barometric Press", "", "H" 
+DL.Pause 500
+DL.SendSequence "Set Gas Compensation", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Flowing GasTemp", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Zero Gas Type", "", "H"
+DL.Pause 500
+DL.SendSequence "Set CO2 Data AGC", "", "H"
+DL.Pause 500
+DL.SendSequence "Set CO2 Reference AGC", "", "H"
+DL.Pause 500
+DL.SendSequence "Set CO2 Data Offset DAC", "", "H"
+DL.Pause 500
+DL.SendSequence "Set CO2 Reference Offset DAC", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Sampling Delay", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Gain Resistor Bits", "", "H"
+DL.Pause 500
+DL.SendSequence "Set No Breaths Detected Timeout", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Current ETCO2 Time Period", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Source Pulse Width", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Balance gas", "", "H"
+DL.Pause 500
+DL.SendSequence "Set CO2 Units", "", "H"
+DL.Pause 500
+DL.SendSequence "Set Sleep Mode Status", "", "H"
+DL.Pause 500
+DL.AddComment vbNewLine
+DL.AddComment "***       Script Finished Execution       ***"
+   
+   
+   
+   
+  
+   
+  
