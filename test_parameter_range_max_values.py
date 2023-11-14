@@ -4,15 +4,16 @@ import getpass
 
 # Get the current Windows user
 current_user = getpass.getuser()
+
 if current_user == '320027279':
     current_user = 'Afshin Ashrafy'
 else:
     current_user = getpass.getuser()
 # Define the serial port and baud rate
-ser = serial.Serial('COM4', 19200)
+ser = serial.Serial('COM5', 19200)
 
 # Define a list of tuples where each tuple contains a command and its expected response for C5 ParameterRange_MaxValues
-commands = [(bytes([0x84, 0x04, 0x01, 0x06, 0x52, 0x1F]), bytes([0x84, 0x04, 0x01, 0x06, 0x52, 0x1F])),
+commands = [(bytes([0x84, 0x04, 0x01, 0x06, 0x52, 0x1F]), bytes([0x84, 0x04, 0x01, 0x06, 0x52, 0x1f])),
             (bytes([0x84, 0x06, 0x0B, 0x4F, 0x02, 0x00, 0x00, 0x1A]), bytes([0x84, 0x06, 0x0B, 0x4F, 0x02, 0x00, 0x00, 0x1A])),
             (bytes([0x84, 0x04, 0x04, 0x03, 0x74, 0x7D]), bytes([0x84, 0x04, 0x04, 0x03, 0x74, 0x7D])),
             (bytes([0x84, 0x03, 0x09, 0x01, 0x6F]), bytes([0x84, 0x03, 0x09, 0x01, 0x6F])),
@@ -26,8 +27,12 @@ responses = []
 # Get the current date and time
 current_datetime = datetime.datetime.now()
 
-# Create a fixed output file name
-output_file_name = 'Param_MaxLimitCommands_Results.txt'
+
+# Create a dynamic output file name with timestamp
+timestamp_str = current_datetime.strftime('%b %m, %Y-%H-%M-%S')
+
+# Create a dynamic output file name with timestamp
+output_file_name = f'Param_MaxLimitCommands_Results_{timestamp_str}.txt'
 
 # Record the start time
 start_time = datetime.datetime.now()
